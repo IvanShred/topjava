@@ -2,8 +2,8 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.storage.ListStorage;
-import ru.javawebinar.topjava.storage.Storage;
+import ru.javawebinar.topjava.storage.MapMealsStorage;
+import ru.javawebinar.topjava.storage.MealsStorage;
 import ru.javawebinar.topjava.util.DateUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
@@ -18,12 +18,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
-    private static Storage storage;
+    private MealsStorage storage;
 
     @Override
     public void init() throws ServletException {
-        super.init();
-        storage = new ListStorage();
+        storage = new MapMealsStorage();
+        storage.fillStorage();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -74,7 +74,7 @@ public class MealServlet extends HttpServlet {
                 meal = storage.get(Integer.parseInt(uuid));
                 break;
             default:
-                throw new IllegalArgumentException("Action " + action + " is illegal");
+                throw new RuntimeException("Action " + action + " is illegal");
         }
         request.setAttribute("meal", meal);
         request.getRequestDispatcher("/editMeals.jsp").forward(request, response);
