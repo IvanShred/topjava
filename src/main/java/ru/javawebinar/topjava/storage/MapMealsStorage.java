@@ -6,26 +6,25 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MapMealsStorage implements MealsStorage {
-    private static AtomicInteger counter;
-    private ConcurrentHashMap<Integer, Meal> meals = new ConcurrentHashMap<>();
+    private AtomicInteger counter = new AtomicInteger(1);
+    private Map<Integer, Meal> meals = new ConcurrentHashMap<>();
 
-    public List<Meal> getMeals() {
-        return new ArrayList<>(meals.values());
+    {
+        save(new Meal(1, LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500));
+        save(new Meal(2, LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000));
+        save(new Meal(3, LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500));
+        save(new Meal(4, LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000));
+        save(new Meal(5, LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500));
+        save(new Meal(6, LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510));
     }
 
-    @Override
-    public void fillStorage() {
-        meals.put(1, new Meal(1, LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500));
-        meals.put(2, new Meal(2, LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000));
-        meals.put(3, new Meal(3, LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500));
-        meals.put(4, new Meal(4, LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000));
-        meals.put(5, new Meal(5, LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500));
-        meals.put(6, new Meal(6, LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510));
-        counter = new AtomicInteger(6);
+    public List<Meal> getAll() {
+        return new ArrayList<>(meals.values());
     }
 
     @Override
@@ -35,14 +34,17 @@ public class MapMealsStorage implements MealsStorage {
 
     @Override
     public Meal update(Meal meal) {
-        meals.put(meal.getId(), meal);
+        if (get(meal.getId()) == null) {
+            save(meal);
+        } else {
+            meals.put(meal.getId(), meal);
+        }
         return meal;
     }
 
     @Override
     public Meal save(Meal meal) {
-        counter.incrementAndGet();
-        meal.setId(counter.intValue());
+        meal.setId(counter.getAndIncrement());
         meals.put(meal.getId(), meal);
         return meal;
     }

@@ -23,19 +23,14 @@ public class MealServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         storage = new MapMealsStorage();
-        storage.fillStorage();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         int uuid = Integer.parseInt(request.getParameter("uuid"));
         final boolean isCreate = (uuid == 0);
-        Meal meal;
-        if (isCreate) {
-            meal = new Meal();
-        } else {
-            meal = storage.get(uuid);
-        }
+        Meal meal = new Meal();
+        meal.setId(uuid);
         String data = request.getParameter("data");
         meal.setDateTime(DateUtil.dateTimeFormatFromString(data));
         String description = request.getParameter("description");
@@ -57,7 +52,7 @@ public class MealServlet extends HttpServlet {
         String uuid = request.getParameter("uuid");
         String action = request.getParameter("action");
         if (action == null) {
-            request.setAttribute("meals", MealsUtil.getFilteredWithExcess(storage.getMeals(), LocalTime.MIN, LocalTime.MAX, 2000));
+            request.setAttribute("meals", MealsUtil.getFilteredWithExcess(storage.getAll(), LocalTime.MIN, LocalTime.MAX, 2000));
             request.getRequestDispatcher("/meals.jsp").forward(request, response);
             return;
         }
@@ -74,7 +69,8 @@ public class MealServlet extends HttpServlet {
                 meal = storage.get(Integer.parseInt(uuid));
                 break;
             default:
-                throw new RuntimeException("Action " + action + " is illegal");
+                response.sendRedirect("meals");
+                return;
         }
         request.setAttribute("meal", meal);
         request.getRequestDispatcher("/editMeals.jsp").forward(request, response);
