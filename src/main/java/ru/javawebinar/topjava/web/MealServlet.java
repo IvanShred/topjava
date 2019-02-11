@@ -28,7 +28,6 @@ public class MealServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         int uuid = Integer.parseInt(request.getParameter("uuid"));
-        final boolean isCreate = (uuid == 0);
         Meal meal = new Meal();
         meal.setId(uuid);
         String data = request.getParameter("data");
@@ -38,7 +37,7 @@ public class MealServlet extends HttpServlet {
         String calories = request.getParameter("calories");
         meal.setCalories(Integer.parseInt(calories));
 
-        if (isCreate) {
+        if (uuid == 0) {
             storage.save(meal);
         } else {
             storage.update(meal);

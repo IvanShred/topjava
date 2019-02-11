@@ -35,7 +35,7 @@ public class MapMealsStorage implements MealsStorage {
     @Override
     public Meal update(Meal meal) {
         if (get(meal.getId()) == null) {
-            save(meal);
+            return null;
         } else {
             meals.put(meal.getId(), meal);
         }
