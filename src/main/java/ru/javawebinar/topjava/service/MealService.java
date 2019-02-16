@@ -14,7 +14,7 @@ public interface MealService {
 
     Meal get(int id, int authUserId) throws NotFoundException;
 
-    void update(Meal meal, int authUserId);
+    Meal update(Meal meal, int authUserId);
 
     List<Meal> getAll(int authUserId);
 

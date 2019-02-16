@@ -38,8 +38,8 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public void update(Meal meal, int authUserId) {
-        checkNotFoundWithId(repository.save(meal, authUserId), meal.getId());
+    public Meal update(Meal meal, int authUserId) {
+        return checkNotFoundWithId(repository.save(meal, authUserId), meal.getId());
     }
 
     @Override

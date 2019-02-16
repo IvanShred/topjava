@@ -7,7 +7,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -23,8 +22,7 @@ public class MealServlet extends HttpServlet {
     private MealRestController controller;
 
     @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
+    public void init() throws ServletException {
         try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
             controller = appCtx.getBean(MealRestController.class);
         }
@@ -36,7 +34,7 @@ public class MealServlet extends HttpServlet {
         String id = request.getParameter("id");
         String action = request.getParameter("action");
 
-        if (!action.equals("filter")) {
+        if (action == null) {
             Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
                     LocalDateTime.parse(request.getParameter("dateTime")),
                     request.getParameter("description"),
@@ -49,7 +47,7 @@ public class MealServlet extends HttpServlet {
                 controller.update(meal, Integer.parseInt(id));
             }
             response.sendRedirect("meals");
-        } else {
+        } else if (action.equals("filter")){
             request.setAttribute("meals",
                     controller.getAllWithFilter(request.getParameter("startDate"), request.getParameter("endDate"),
                             request.getParameter("startTime"), request.getParameter("endTime")));

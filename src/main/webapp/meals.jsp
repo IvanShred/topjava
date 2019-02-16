@@ -21,7 +21,6 @@
     <h3><a href="index.html">Home</a></h3>
     <h2>Meals</h2>
     <form method="post" action="meals">
-        <%--<input type="hidden" name="id" value="${meal.id}">--%>
         <input type="hidden" name="action" value="filter">
         <dl>
             <dt>От даты:</dt>
@@ -40,6 +39,7 @@
             <dd><input type="time" name="endTime"></dd>
         </dl>
         <button type="submit">Отфильтровать</button>
+        <button onclick="window.location.href=window.location.href" type="button">Отменить</button>
     </form>
     <a href="meals?action=create">Add Meal</a>
     <hr/>

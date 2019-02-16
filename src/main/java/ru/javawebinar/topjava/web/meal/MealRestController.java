@@ -44,7 +44,6 @@ public class MealRestController {
 
         List<Meal> meals = service.getAllWithFilter(dateStart, dateEnd, timeStart, timeEnd, SecurityUtil.authUserId());
         List<MealTo> result = new ArrayList<>();
-        //meals.stream().map(x -> new MealTo(x.getId(), x.getDateTime(), x.getDescription(), x.getCalories(), mealsTo.get(x.getId()).isExcess()));
         for (int i = 0; i < meals.size(); i++) {
             for (int j = 0; j < mealsTo.size(); j++) {
                 if (meals.get(i).getId() == mealsTo.get(j).getId()) {
@@ -54,7 +53,6 @@ public class MealRestController {
                 }
             }
         }
-        //return MealsUtil.getWithExcess(service.getAllWithFilter(startDate, endDate, startTime, endTime, SecurityUtil.authUserId()), SecurityUtil.authUserCaloriesPerDay());
         return result;
     }
 
@@ -75,10 +73,10 @@ public class MealRestController {
         service.delete(id, SecurityUtil.authUserId());
     }
 
-    public void update(Meal meal, int id) {
+    public Meal update(Meal meal, int id) {
         log.info("update {} with id={}", meal, id);
         meal.setUserId(SecurityUtil.authUserId());
         assureIdConsistent(meal, id);
-        service.update(meal, SecurityUtil.authUserId());
+        return service.update(meal, SecurityUtil.authUserId());
     }
 }
