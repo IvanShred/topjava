@@ -12,7 +12,6 @@ import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
@@ -36,24 +35,13 @@ public class MealRestController {
 
     public List<MealTo> getAllWithFilter(String startDate, String endDate, String startTime, String endTime) {
         log.info("getAllWithFilter");
-        List<MealTo> mealsTo = getAll();
         LocalDate dateStart = startDate.length() != 0 ? LocalDate.parse(startDate) : LocalDate.MIN;
         LocalDate dateEnd = endDate.length() != 0 ? LocalDate.parse(endDate) : LocalDate.MAX;
         LocalTime timeStart = startTime.length() != 0 ? LocalTime.parse(startTime) : LocalTime.MIN;
         LocalTime timeEnd = endTime.length() != 0 ? LocalTime.parse(endTime) : LocalTime.MAX;
 
-        List<Meal> meals = service.getAllWithFilter(dateStart, dateEnd, timeStart, timeEnd, SecurityUtil.authUserId());
-        List<MealTo> result = new ArrayList<>();
-        for (int i = 0; i < meals.size(); i++) {
-            for (int j = 0; j < mealsTo.size(); j++) {
-                if (meals.get(i).getId() == mealsTo.get(j).getId()) {
-                    result.add(new MealTo(meals.get(i).getId(), meals.get(i).getDateTime(),
-                            meals.get(i).getDescription(), meals.get(i).getCalories(), mealsTo.get(j).isExcess()));
-                    break;
-                }
-            }
-        }
-        return result;
+        return MealsUtil.getFilteredWithExcess(service.getAllWithFilter(dateStart, dateEnd, SecurityUtil.authUserId()),
+                SecurityUtil.authUserCaloriesPerDay(), timeStart, timeEnd);
     }
 
     public Meal get(int id) {
@@ -63,7 +51,6 @@ public class MealRestController {
 
     public Meal create(Meal meal) {
         log.info("create {}", meal);
-        meal.setUserId(SecurityUtil.authUserId());
         checkNew(meal);
         return service.create(meal, SecurityUtil.authUserId());
     }
@@ -75,7 +62,6 @@ public class MealRestController {
 
     public Meal update(Meal meal, int id) {
         log.info("update {} with id={}", meal, id);
-        meal.setUserId(SecurityUtil.authUserId());
         assureIdConsistent(meal, id);
         return service.update(meal, SecurityUtil.authUserId());
     }

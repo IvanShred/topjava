@@ -7,70 +7,76 @@ import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryMealRepositoryImpl implements MealRepository {
-    private Map<Integer, Meal> repository = new ConcurrentHashMap<>();
+    private Map<Integer, Map<Integer, Meal>> repository = new ConcurrentHashMap<>();
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
-        MealsUtil.MEALS.forEach(meal -> save(meal, meal.getUserId()));
+        MealsUtil.MEALS.forEach(meal -> save(meal, 1));
+        save(new Meal(LocalDateTime.of(2019, Month.FEBRUARY, 16, 10, 0), "Бутерброды", 1000), 2);
+        save(new Meal(LocalDateTime.of(2019, Month.FEBRUARY, 16, 13, 0), "Котлеты", 510), 2);
+        save(new Meal(LocalDateTime.of(2019, Month.FEBRUARY, 16, 20, 0), "Суп", 500), 2);
+        save(new Meal(LocalDateTime.of(2019, Month.FEBRUARY, 17, 10, 0), "Яичница", 500), 2);
+        save(new Meal(LocalDateTime.of(2019, Month.FEBRUARY, 17, 13, 0), "Макароны", 500), 2);
+        save(new Meal(LocalDateTime.of(2019, Month.FEBRUARY, 17, 20, 0), "Салат", 1000), 2);
+
     }
 
     @Override
-    public Meal save(Meal meal, int authUserId) {
-        if (meal.getUserId() == authUserId) {
-            if (meal.isNew()) {
-                meal.setId(counter.incrementAndGet());
-                repository.put(meal.getId(), meal);
-                return meal;
-            }
-            // treat case: update, but absent in storage
-            return repository.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
+    public Meal save(Meal meal, int userId) {
+        if (repository.get(userId) == null) {
+            repository.put(userId, new ConcurrentHashMap<>());
+        }
+        if (meal.isNew()) {
+            meal.setId(counter.incrementAndGet());
+            repository.get(userId).put(meal.getId(), meal);
+            return meal;
         } else {
-            return null;
+            return repository.get(userId).computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
         }
     }
 
     @Override
-    public boolean delete(int id, int authUserId) {
-        if (repository.get(id).getUserId() == authUserId) {
-            return repository.remove(id) != null;
+    public boolean delete(int id, int userId) {
+        if (repository.get(userId) != null && repository.get(userId).get(id) != null) {
+            repository.get(userId).remove(id);
+            return true;
         } else {
             return false;
         }
     }
 
     @Override
-    public Meal get(int id, int authUserId) {
-        if (repository.get(id).getUserId() == authUserId) {
-            return repository.get(id);
+    public Meal get(int id, int userId) {
+        if (repository.get(userId) != null) {
+            return repository.get(userId).get(id);
         } else {
             return null;
         }
     }
 
     @Override
-    public List<Meal> getAll(int authUserId) {
-        List<Meal> meals = new ArrayList<>(repository.values());
-        return meals.stream()
-                .filter(meal -> meal.getUserId() == authUserId)
-                .sorted((o1, o2) -> -o1.getDate().compareTo(o2.getDate()))
-                .collect(Collectors.toList());
+    public List<Meal> getAll(int userId) {
+        if (repository.get(userId) != null) {
+            List<Meal> meals = new ArrayList<>(repository.get(userId).values());
+            meals.sort((o1, o2) -> -o1.getDate().compareTo(o2.getDate()));
+            return meals;
+        }
+        return new ArrayList<>();
     }
 
     @Override
-    public List<Meal> getAllWithFilter(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, int authUserId) {
-        return getAll(authUserId).stream()
+    public List<Meal> getAllWithFilter(LocalDate startDate, LocalDate endDate, int userId) {
+        return getAll(userId).stream()
                 .filter(meal -> DateTimeUtil.isBetween(meal.getDateTime().toLocalDate(), startDate, endDate))
-                .filter(meal -> DateTimeUtil.isBetween(meal.getDateTime().toLocalTime(), startTime, endTime))
                 .collect(Collectors.toList());
     }
 }

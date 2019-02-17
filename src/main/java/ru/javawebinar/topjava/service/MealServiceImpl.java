@@ -23,32 +23,32 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public Meal create(Meal meal, int authUserId) {
-        return repository.save(meal, authUserId);
+    public Meal create(Meal meal, int userId) {
+        return repository.save(meal, userId);
     }
 
     @Override
-    public void delete(int id, int authUserId) throws NotFoundException {
-        checkNotFoundWithId(repository.delete(id, authUserId), id);
+    public void delete(int id, int userId) throws NotFoundException {
+        checkNotFoundWithId(repository.delete(id, userId), id);
     }
 
     @Override
-    public Meal get(int id, int authUserId) throws NotFoundException {
-        return checkNotFoundWithId(repository.get(id, authUserId), id);
+    public Meal get(int id, int userId) throws NotFoundException {
+        return checkNotFoundWithId(repository.get(id, userId), id);
     }
 
     @Override
-    public Meal update(Meal meal, int authUserId) {
-        return checkNotFoundWithId(repository.save(meal, authUserId), meal.getId());
+    public Meal update(Meal meal, int userId) {
+        return checkNotFoundWithId(repository.save(meal, userId), meal.getId());
     }
 
     @Override
-    public List<Meal> getAll(int authUserId) {
-        return repository.getAll(authUserId);
+    public List<Meal> getAll(int userId) {
+        return repository.getAll(userId);
     }
 
     @Override
-    public List<Meal> getAllWithFilter(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, int authUserId) {
-        return repository.getAllWithFilter(startDate, endDate, startTime, endTime, authUserId);
+    public List<Meal> getAllWithFilter(LocalDate startDate, LocalDate endDate, int userId) {
+        return repository.getAllWithFilter(startDate, endDate, userId);
     }
 }
