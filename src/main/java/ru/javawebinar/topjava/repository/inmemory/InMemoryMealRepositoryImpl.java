@@ -32,41 +32,38 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal save(Meal meal, int userId) {
-        if (repository.get(userId) == null) {
-            repository.put(userId, new ConcurrentHashMap<>());
-        }
+        repository.putIfAbsent(userId, new ConcurrentHashMap<>());
+        Map<Integer, Meal> meals = repository.get(userId);
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
-            repository.get(userId).put(meal.getId(), meal);
+            meals.put(meal.getId(), meal);
             return meal;
         } else {
-            return repository.get(userId).computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
+            return meals.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
         }
     }
 
     @Override
     public boolean delete(int id, int userId) {
-        if (repository.get(userId) != null && repository.get(userId).get(id) != null) {
-            repository.get(userId).remove(id);
-            return true;
-        } else {
-            return false;
+        Map<Integer, Meal> meals = repository.get(userId);
+        boolean result = meals != null && meals.get(id) != null;
+        if (result) {
+            meals.remove(id);
         }
+        return result;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        if (repository.get(userId) != null) {
-            return repository.get(userId).get(id);
-        } else {
-            return null;
-        }
+        Map<Integer, Meal> meals = repository.get(userId);
+        return meals != null ? meals.get(id) : null;
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        if (repository.get(userId) != null) {
-            List<Meal> meals = new ArrayList<>(repository.get(userId).values());
+        Map<Integer, Meal> mealsMap = repository.get(userId);
+        if (mealsMap != null) {
+            List<Meal> meals = new ArrayList<>(mealsMap.values());
             meals.sort((o1, o2) -> -o1.getDate().compareTo(o2.getDate()));
             return meals;
         }
