@@ -19,6 +19,7 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -43,7 +44,8 @@ public class MealServiceTest {
     @Test
     public void get() {
         Meal meal = service.get(MEAL_USER_1.getId(), USER_ID);
-        assertEquals(MEAL_USER_1, meal);
+        assertThat(MEAL_USER_1).isEqualToComparingFieldByField(meal);
+        //assertEquals(MEAL_USER_1, meal);
     }
 
     @Test(expected = NotFoundException.class)
@@ -66,7 +68,7 @@ public class MealServiceTest {
     public void getBetweenDates() {
         List<Meal> meals = service.getBetweenDates(LocalDate.of(2015, Month.MAY, 31),
                 LocalDate.of(2015, Month.JUNE, 01), USER_ID);
-        Assert.assertEquals(3, meals.size());
+        assertEquals(3, meals.size());
     }
 
     @Test
@@ -76,7 +78,7 @@ public class MealServiceTest {
         Assert.assertEquals(2, meals.size());
         List<Meal> sortedMeals = Arrays.asList(MEAL_USER_5, MEAL_USER_6);
         sortedMeals.sort((o1, o2) -> -o1.getDateTime().compareTo(o2.getDateTime()));
-        assertEquals(sortedMeals, meals);
+        assertThat(sortedMeals).usingElementComparatorOnFields("id", "dateTime", "description", "calories").isEqualTo(meals);
     }
 
     @Test
@@ -85,7 +87,7 @@ public class MealServiceTest {
         Assert.assertEquals(6, meals.size());
         List<Meal> sortedMeals = Arrays.asList(MEAL_USER_1, MEAL_USER_2, MEAL_USER_3, MEAL_USER_4, MEAL_USER_5, MEAL_USER_6);
         sortedMeals.sort((o1, o2) -> -o1.getDateTime().compareTo(o2.getDateTime()));
-        assertEquals(sortedMeals, meals);
+        assertThat(sortedMeals).usingElementComparatorOnFields("id", "dateTime", "description", "calories").isEqualTo(meals);
     }
 
     @Test
@@ -94,7 +96,7 @@ public class MealServiceTest {
         updated.setDescription("Полдник");
         updated.setCalories(330);
         service.update(updated, USER_ID);
-        assertEquals(service.get(MEAL_USER_1.getId(), USER_ID), updated);
+        assertThat(service.get(MEAL_USER_1.getId(), USER_ID)).isEqualToComparingFieldByField(updated);
     }
 
     @Test(expected = NotFoundException.class)
