@@ -30,7 +30,7 @@ CREATE TABLE public.meals
   id integer DEFAULT nextval('global_seq') PRIMARY KEY,
   date_time timestamp DEFAULT now() NOT NULL,
   description varchar NOT NULL,
-  calories integer DEFAULT 500 NOT NULL,
+  calories integer NOT NULL,
   user_id integer NOT NULL,
   FOREIGN KEY (user_id) REFERENCES public.users (id) ON DELETE CASCADE
 );

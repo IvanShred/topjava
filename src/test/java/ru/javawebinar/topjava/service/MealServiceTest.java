@@ -19,13 +19,13 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 import static ru.javawebinar.topjava.MealTestData.*;
 
 @ContextConfiguration({
         "classpath:spring/spring-app.xml",
+        "classpath:spring/spring-general.xml",
         "classpath:spring/spring-db.xml"
 })
 @RunWith(SpringRunner.class)
@@ -44,8 +44,7 @@ public class MealServiceTest {
     @Test
     public void get() {
         Meal meal = service.get(MEAL_USER_1.getId(), USER_ID);
-        assertThat(MEAL_USER_1).isEqualToComparingFieldByField(meal);
-        //assertEquals(MEAL_USER_1, meal);
+        assertMatch(MEAL_USER_1, meal);
     }
 
     @Test(expected = NotFoundException.class)
@@ -53,10 +52,11 @@ public class MealServiceTest {
         service.get(MEAL_ADMIN_1.getId(), USER_ID);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void delete() {
         service.delete(MEAL_USER_1.getId(), USER_ID);
-        service.get(MEAL_USER_1.getId(), USER_ID);
+        assertMatch(service.getAll(USER_ID), MEAL_USER_6, MEAL_USER_5, MEAL_USER_4, MEAL_USER_3, MEAL_USER_2);
+
     }
 
     @Test(expected = NotFoundException.class)
@@ -67,7 +67,7 @@ public class MealServiceTest {
     @Test
     public void getBetweenDates() {
         List<Meal> meals = service.getBetweenDates(LocalDate.of(2015, Month.MAY, 31),
-                LocalDate.of(2015, Month.JUNE, 01), USER_ID);
+                LocalDate.of(2015, Month.JUNE, 1), USER_ID);
         assertEquals(3, meals.size());
     }
 
@@ -78,7 +78,7 @@ public class MealServiceTest {
         Assert.assertEquals(2, meals.size());
         List<Meal> sortedMeals = Arrays.asList(MEAL_USER_5, MEAL_USER_6);
         sortedMeals.sort((o1, o2) -> -o1.getDateTime().compareTo(o2.getDateTime()));
-        assertThat(sortedMeals).usingElementComparatorOnFields("id", "dateTime", "description", "calories").isEqualTo(meals);
+        assertMatch(sortedMeals, meals);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class MealServiceTest {
         Assert.assertEquals(6, meals.size());
         List<Meal> sortedMeals = Arrays.asList(MEAL_USER_1, MEAL_USER_2, MEAL_USER_3, MEAL_USER_4, MEAL_USER_5, MEAL_USER_6);
         sortedMeals.sort((o1, o2) -> -o1.getDateTime().compareTo(o2.getDateTime()));
-        assertThat(sortedMeals).usingElementComparatorOnFields("id", "dateTime", "description", "calories").isEqualTo(meals);
+        assertMatch(sortedMeals, meals);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class MealServiceTest {
         updated.setDescription("Полдник");
         updated.setCalories(330);
         service.update(updated, USER_ID);
-        assertThat(service.get(MEAL_USER_1.getId(), USER_ID)).isEqualToComparingFieldByField(updated);
+        assertMatch(service.get(MEAL_USER_1.getId(), USER_ID), updated);
     }
 
     @Test(expected = NotFoundException.class)
@@ -106,9 +106,11 @@ public class MealServiceTest {
 
     @Test
     public void create() {
-        Meal meal = new Meal(LocalDateTime.of(2019, Month.FEBRUARY, 18, 20, 0), "Гречка", 600);
-        service.create(meal, USER_ID);
-        assertEquals(7, service.getAll(USER_ID).size());
+        Meal newMeal = new Meal(LocalDateTime.of(2019, Month.FEBRUARY, 18, 20, 0), "Гречка", 600);
+        Meal created = service.create(newMeal, USER_ID);
+        service.create(newMeal, USER_ID);
+        newMeal.setId(created.getId());
+        assertMatch(service.getAll(USER_ID), newMeal, MEAL_USER_6, MEAL_USER_5, MEAL_USER_4, MEAL_USER_3, MEAL_USER_2, MEAL_USER_1);
     }
 
     @Test(expected = DataAccessException.class)
