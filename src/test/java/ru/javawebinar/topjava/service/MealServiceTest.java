@@ -63,7 +63,7 @@ public class MealServiceTest {
 
     @AfterClass
     public static void summary() {
-        StringBuilder result = new StringBuilder("Test run time:");
+        StringBuilder result = new StringBuilder("Tests run time:");
         for (String testTime : testsRunTime) {
             result.append("\n").append(testTime);
         }
