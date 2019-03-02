@@ -2,8 +2,7 @@ package ru.javawebinar.topjava.service;
 
 import org.junit.*;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
+import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -21,6 +20,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
@@ -33,25 +33,24 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringJUnit4ClassRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
-    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(MealServiceTest.class);
     private static List<String> testsRunTime = new ArrayList<>();
-    private Long start;
 
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
 
-    @Rule
-    public final TestRule watchman = new TestWatcher() {
-        @Override
-        protected void starting(Description description) {
-            start = System.currentTimeMillis();
-        }
+    private static void logInfo(Description description, long nanos) {
+        String testLog = String.format("\u001B[32m" + "%s() - %d ms" + "\u001B[0m",
+                description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
+        logger.info(testLog);
+        testsRunTime.add(testLog);
+    }
 
+    @Rule
+    public Stopwatch stopwatch = new Stopwatch() {
         @Override
-        protected void finished(Description description) {
-            String testTime = description.getMethodName() + " : " + String.valueOf(System.currentTimeMillis() - start);
-            log.info(testTime);
-            testsRunTime.add(testTime);
+        protected void finished(long nanos, Description description) {
+            logInfo(description, nanos);
         }
     };
 
@@ -63,10 +62,12 @@ public class MealServiceTest {
     private MealService service;
 
     @AfterClass
-    public static void summary(){
+    public static void summary() {
+        StringBuilder result = new StringBuilder("Test run time:");
         for (String testTime : testsRunTime) {
-            log.info(testTime);
+            result.append("\n").append(testTime);
         }
+        logger.info(String.valueOf(result));
     }
 
     @Test
