@@ -1,12 +1,12 @@
-package ru.javawebinar.topjava.service;
+package ru.javawebinar.topjava.service.datajpa;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.test.context.ActiveProfiles;
 import ru.javawebinar.topjava.MealTestData;
 import ru.javawebinar.topjava.Profiles;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
+import ru.javawebinar.topjava.service.UserServiceTest;
 
 import java.util.List;
 
@@ -17,10 +17,6 @@ import static ru.javawebinar.topjava.UserTestData.assertMatch;
 
 @ActiveProfiles(Profiles.DATAJPA)
 public class DataJpaUserServiceTest extends UserServiceTest {
-    @BeforeClass
-    public static void resetResults() {
-        results = new StringBuilder();
-    }
 
     @Test
     public void getUserByIdWithMeals() {
