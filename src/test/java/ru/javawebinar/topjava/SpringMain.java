@@ -15,8 +15,7 @@ import java.util.List;
 
 public class SpringMain {
     public static void main(String[] args) {
-        GenericXmlApplicationContext appCtx = new GenericXmlApplicationContext();
-        try {
+        try (GenericXmlApplicationContext appCtx = new GenericXmlApplicationContext()) {
             appCtx.getEnvironment().setActiveProfiles(Profiles.JPA, Profiles.getActiveDbProfile());
             appCtx.load("spring/spring-app.xml", "spring/spring-db.xml");
             appCtx.refresh();
@@ -31,8 +30,6 @@ public class SpringMain {
                             LocalDate.of(2015, Month.MAY, 30), LocalTime.of(7, 0),
                             LocalDate.of(2015, Month.MAY, 31), LocalTime.of(11, 0));
             filteredMealsWithExcess.forEach(System.out::println);
-        } finally {
-            appCtx.close();
         }
     }
 }
