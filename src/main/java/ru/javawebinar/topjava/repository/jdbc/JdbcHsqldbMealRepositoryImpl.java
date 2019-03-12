@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Repository
 @Profile(Profiles.HSQL_DB)
-public class JdbcHsqldbMealRepositoryImpl extends AbstractJdbcMealRepository {
+public class JdbcHsqldbMealRepositoryImpl extends AbstractJdbcMealRepository<Timestamp> {
 
     @Override
     protected Timestamp getDateTime(LocalDateTime endDate) {
