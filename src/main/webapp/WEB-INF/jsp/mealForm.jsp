@@ -7,8 +7,17 @@
 <body>
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>
-    <%--<h3><a href="index.html">Home</a></h3>--%>
-    <h2>${param.action == 'create' ? 'Create meal' : 'Edit meal'}</h2>
+    <h2>
+            <c:set var="val" value="${param.action}"/>
+            <c:choose>
+                <c:when test="${val == 'create'}">
+                    <spring:message code="meal.addMeal"/>
+                </c:when>
+                <c:otherwise>
+                    <spring:message code="meal.editMeal"/>
+                </c:otherwise>
+            </c:choose>
+    </h2>
     <hr>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
     <form method="post" action="meals">
