@@ -21,7 +21,6 @@ import java.util.Objects;
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
 import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
-import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 
 @Controller
 @RequestMapping(value = "/meals")
@@ -31,13 +30,13 @@ public class JspMealController extends AbstractMealController {
 
     @GetMapping()
     public String getAll(Model model) {
-        model.addAttribute("meals", getAllForController(SecurityUtil.authUserId()));
+        model.addAttribute("meals", super.getAll());
         return "meals";
     }
 
     @GetMapping(params = {"action=delete"})
     public String delete(HttpServletRequest request) {
-        deleteForController(getId(request), SecurityUtil.authUserId());
+        super.delete(getId(request));
         return "redirect:meals";
     }
 
@@ -63,11 +62,10 @@ public class JspMealController extends AbstractMealController {
                 Integer.parseInt(request.getParameter("calories")));
 
         if (StringUtils.isEmpty(request.getParameter("id"))) {
-            checkNew(meal);
-            createForController(meal, SecurityUtil.authUserId());
+            super.create(meal);
         } else {
             assureIdConsistent(meal, getId(request));
-            updateForController(meal, SecurityUtil.authUserId());
+            super.update(meal, getId(request));
         }
         return "redirect:meals";
     }
@@ -79,7 +77,7 @@ public class JspMealController extends AbstractMealController {
         LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
         LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
 
-        model.addAttribute("meals", getBetweenForController(startDate, startTime, endDate, endTime, SecurityUtil.authUserId()));
+        model.addAttribute("meals", super.getBetween(startDate, startTime, endDate, endTime));
         return "meals";
     }
 

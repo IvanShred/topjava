@@ -13,33 +13,43 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
+import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
+
 public class AbstractMealController {
     @Autowired
     private MealService service;
 
     private static final Logger log = LoggerFactory.getLogger(AbstractMealController.class);
 
-    protected List<MealTo> getAllForController(int userId) {
+    protected List<MealTo> getAll() {
+        int userId = SecurityUtil.authUserId();
         log.info("getAll for user {}", userId);
         return MealsUtil.getWithExcess(service.getAll(userId), SecurityUtil.authUserCaloriesPerDay());
     }
 
-    protected void deleteForController(int id, int userId) {
+    protected void delete(int id) {
+        int userId = SecurityUtil.authUserId();
         log.info("delete meal {} for user {}", id, userId);
         service.delete(id, userId);
     }
 
-    protected Meal createForController(Meal meal, int userId) {
+    protected Meal create(Meal meal) {
+        int userId = SecurityUtil.authUserId();
+        checkNew(meal);
         log.info("create {} for user {}", meal, userId);
         return service.create(meal, userId);
     }
 
-    protected void updateForController(Meal meal, int userId) {
+    protected void update(Meal meal, int id) {
+        int userId = SecurityUtil.authUserId();
+        assureIdConsistent(meal, id);
         log.info("update {} for user {}", meal, userId);
         service.update(meal, userId);
     }
 
-    protected List<MealTo> getBetweenForController(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime, int userId) {
+    protected List<MealTo> getBetween(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+        int userId = SecurityUtil.authUserId();
         log.info("getBetween dates({} - {}) time({} - {}) for user {}", startDate, endDate, startTime, endTime, userId);
         List<Meal> mealsDateFiltered = service.getBetweenDates(startDate, endDate, userId);
         return MealsUtil.getFilteredWithExcess(mealsDateFiltered, SecurityUtil.authUserCaloriesPerDay(), startTime, endTime);
