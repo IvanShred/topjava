@@ -42,7 +42,7 @@ public class MealRestController {
 
     public List<MealTo> getAll() {
         int userId = SecurityUtil.authUserId();
-        log.info("getAll for user {}", userId);
+        log.info("getAllForController for user {}", userId);
         return MealsUtil.getWithExcess(service.getAll(userId), SecurityUtil.authUserCaloriesPerDay());
     }
 

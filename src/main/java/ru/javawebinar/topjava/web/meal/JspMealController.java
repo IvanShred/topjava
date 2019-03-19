@@ -1,4 +1,4 @@
-package ru.javawebinar.topjava.web;
+package ru.javawebinar.topjava.web.meal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,14 +9,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
-import ru.javawebinar.topjava.util.MealsUtil;
+import ru.javawebinar.topjava.web.SecurityUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Objects;
 
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
@@ -26,19 +25,19 @@ import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 
 @Controller
 @RequestMapping(value = "/meals")
-public class JspMealController {
+public class JspMealController extends AbstractMealController {
     @Autowired
     private MealService service;
 
     @GetMapping()
     public String getAll(Model model) {
-        model.addAttribute("meals", MealsUtil.getWithExcess(service.getAll(SecurityUtil.authUserId()), SecurityUtil.authUserCaloriesPerDay()));
+        model.addAttribute("meals", getAllForController(SecurityUtil.authUserId()));
         return "meals";
     }
 
     @GetMapping(params = {"action=delete"})
     public String delete(HttpServletRequest request) {
-        service.delete(getId(request), SecurityUtil.authUserId());
+        deleteForController(getId(request), SecurityUtil.authUserId());
         return "redirect:meals";
     }
 
@@ -65,10 +64,10 @@ public class JspMealController {
 
         if (StringUtils.isEmpty(request.getParameter("id"))) {
             checkNew(meal);
-            service.create(meal, SecurityUtil.authUserId());
+            createForController(meal, SecurityUtil.authUserId());
         } else {
             assureIdConsistent(meal, getId(request));
-            service.update(meal, SecurityUtil.authUserId());
+            updateForController(meal, SecurityUtil.authUserId());
         }
         return "redirect:meals";
     }
@@ -80,8 +79,7 @@ public class JspMealController {
         LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
         LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
 
-        List<Meal> mealsDateFiltered = service.getBetweenDates(startDate, endDate, SecurityUtil.authUserId());
-        model.addAttribute("meals", MealsUtil.getFilteredWithExcess(mealsDateFiltered, SecurityUtil.authUserCaloriesPerDay(), startTime, endTime));
+        model.addAttribute("meals", getBetweenForController(startDate, startTime, endDate, endTime, SecurityUtil.authUserId()));
         return "meals";
     }
 
