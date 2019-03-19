@@ -26,7 +26,7 @@ import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 
 @Controller
 @RequestMapping(value = "/meals")
-public class JspMealController extends AbstractJspController{
+public class JspMealController {
     @Autowired
     private MealService service;
 

@@ -10,9 +10,14 @@ import ru.javawebinar.topjava.service.UserService;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
-public class RootController extends AbstractJspController{
+public class RootController {
     @Autowired
     private UserService service;
+
+    @GetMapping("/")
+    public String root() {
+        return "index";
+    }
 
     @GetMapping("/users")
     public String users(Model model) {
