@@ -42,8 +42,8 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 
     private void insertRoles(User user) {
         List<User> userWithRole = new ArrayList<>();
-        if (user.getRoles().size() > 1){
-            for (Role role:user.getRoles()) {
+        if (user.getRoles().size() > 1) {
+            for (Role role : user.getRoles()) {
                 userWithRole.add(new User(user.getId(), user.getName(), user.getEmail(), user.getPassword(), role));
             }
         } else {
@@ -75,13 +75,26 @@ public class JdbcUserRepositoryImpl implements UserRepository {
         if (user.isNew()) {
             Number newKey = insertUser.executeAndReturnKey(parameterSource);
             user.setId(newKey.intValue());
-            if (user.getRoles()!= null && user.getRoles().size() != 0) {
+            if (user.getRoles() != null && user.getRoles().size() != 0) {
                 insertRoles(user);
             }
-        } else if (namedParameterJdbcTemplate.update(
-                "UPDATE users SET name=:name, email=:email, password=:password, " +
-                        "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource) == 0) {
-            return null;
+        } else {
+            boolean isUpdated = namedParameterJdbcTemplate.update(
+                    "UPDATE users SET name=:name, email=:email, password=:password, " +
+                            "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource) != 0;
+            Set one = user.getRoles();
+            Set two = get(user.getId()).getRoles();
+            one.removeAll(two);
+            two.removeAll(one);
+            boolean isDifferentRoles = !(one.isEmpty() && two.isEmpty());
+            if (!isUpdated && !isDifferentRoles) {
+                return null;
+            } else if (isDifferentRoles) {
+                jdbcTemplate.update("DELETE FROM user_roles WHERE user_id=?", user.getId());
+                if (user.getRoles() != null && user.getRoles().size() != 0) {
+                    insertRoles(user);
+                }
+            }
         }
         return user;
     }
@@ -101,7 +114,7 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                         "LEFT JOIN user_roles r ON u.id = r.user_id " +
                         "WHERE u.id=?",
                 ROW_MAPPER, id);
-        return DataAccessUtils.singleResult(users);
+        return DataAccessUtils.singleResult(getAllWithRoles(users));
     }
 
     @Override
@@ -113,7 +126,7 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                         "LEFT JOIN user_roles r ON u.id = r.user_id " +
                         "WHERE email=?",
                 ROW_MAPPER, email);
-        return DataAccessUtils.singleResult(users);
+        return DataAccessUtils.singleResult(getAllWithRoles(users));
     }
 
     @Override
@@ -125,6 +138,10 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                         "LEFT JOIN user_roles r ON u.id = r.user_id " +
                         "ORDER BY name, email",
                 ROW_MAPPER);
+        return getAllWithRoles(users);
+    }
+
+    private List<User> getAllWithRoles(List<User> users) {
         Map<User, Set<Role>> usersWithRoles = new LinkedHashMap<>();
         for (User user : users) {
             if (user.getRoles() != null && user.getRoles().size() != 0) {
