@@ -18,7 +18,7 @@ import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 
 public class AbstractMealController {
     @Autowired
-    private MealService service;
+    protected MealService service;
 
     private static final Logger log = LoggerFactory.getLogger(AbstractMealController.class);
 

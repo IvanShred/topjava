@@ -3,8 +3,8 @@ package ru.javawebinar.topjava.repository.jdbc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -22,7 +22,17 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class JdbcUserRepositoryImpl implements UserRepository {
 
-    private static final BeanPropertyRowMapper<User> ROW_MAPPER = BeanPropertyRowMapper.newInstance(User.class);
+    private static final RowMapper<User> MAPPER = (rs, i) -> {
+        User user = new User();
+        user.setId(rs.getInt("id"));
+        user.setName(rs.getString("name"));
+        user.setEmail(rs.getString("email"));
+        user.setPassword(rs.getString("password"));
+        user.setEnabled(rs.getBoolean("enabled"));
+        user.setRoles(Collections.singleton(Role.valueOf(rs.getString("role"))));
+        user.setCaloriesPerDay(rs.getInt("calories_per_day"));
+        return user;
+    };
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -79,21 +89,14 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                 insertRoles(user);
             }
         } else {
-            boolean isUpdated = namedParameterJdbcTemplate.update(
+            if (namedParameterJdbcTemplate.update(
                     "UPDATE users SET name=:name, email=:email, password=:password, " +
-                            "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource) != 0;
-            Set one = user.getRoles();
-            Set two = get(user.getId()).getRoles();
-            one.removeAll(two);
-            two.removeAll(one);
-            boolean isDifferentRoles = !(one.isEmpty() && two.isEmpty());
-            if (!isUpdated && !isDifferentRoles) {
+                            "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource) == 0) {
                 return null;
-            } else if (isDifferentRoles) {
-                jdbcTemplate.update("DELETE FROM user_roles WHERE user_id=?", user.getId());
-                if (user.getRoles() != null && user.getRoles().size() != 0) {
-                    insertRoles(user);
-                }
+            }
+            jdbcTemplate.update("DELETE FROM user_roles WHERE user_id=?", user.getId());
+            if (user.getRoles() != null && user.getRoles().size() != 0) {
+                insertRoles(user);
             }
         }
         return user;
@@ -107,37 +110,31 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 
     @Override
     public User get(int id) {
-        List<User> users = jdbcTemplate.query("SELECT u.id as id, u.name as name, u.email as email, " +
-                        "u.password as password, u.enabled as enabled, u.registered as registered, " +
-                        "r.role as roles, u.calories_per_day as caloriesPerDay " +
+        List<User> users = jdbcTemplate.query("SELECT * " +
                         "FROM users u " +
                         "LEFT JOIN user_roles r ON u.id = r.user_id " +
                         "WHERE u.id=?",
-                ROW_MAPPER, id);
+                MAPPER, id);
         return DataAccessUtils.singleResult(getAllWithRoles(users));
     }
 
     @Override
     public User getByEmail(String email) {
-        List<User> users = jdbcTemplate.query("SELECT u.id as id, u.name as name, u.email as email, " +
-                        "u.password as password, u.enabled as enabled, u.registered as registered, " +
-                        "r.role as roles, u.calories_per_day as caloriesPerDay " +
+        List<User> users = jdbcTemplate.query("SELECT * " +
                         "FROM users u " +
                         "LEFT JOIN user_roles r ON u.id = r.user_id " +
                         "WHERE email=?",
-                ROW_MAPPER, email);
+                MAPPER, email);
         return DataAccessUtils.singleResult(getAllWithRoles(users));
     }
 
     @Override
     public List<User> getAll() {
-        List<User> users = jdbcTemplate.query("SELECT u.id as id, u.name as name, u.email as email, " +
-                        "u.password as password, u.enabled as enabled, u.registered as registered, " +
-                        "r.role as roles, u.calories_per_day as caloriesPerDay " +
+        List<User> users = jdbcTemplate.query("SELECT * " +
                         "FROM users u " +
                         "LEFT JOIN user_roles r ON u.id = r.user_id " +
                         "ORDER BY name, email",
-                ROW_MAPPER);
+                MAPPER);
         return getAllWithRoles(users);
     }
 
