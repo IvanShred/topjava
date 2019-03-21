@@ -51,28 +51,20 @@ public class JdbcUserRepositoryImpl implements UserRepository {
     }
 
     private void insertRoles(User user) {
-        List<User> userWithRole = new ArrayList<>();
-        if (user.getRoles().size() > 1) {
-            for (Role role : user.getRoles()) {
-                userWithRole.add(new User(user.getId(), user.getName(), user.getEmail(), user.getPassword(), role));
-            }
-        } else {
-            userWithRole.add(user);
-        }
+        List<Role> roles = new ArrayList<>(user.getRoles());
 
         jdbcTemplate.batchUpdate("INSERT INTO user_roles " +
                 "(user_id, role) " +
                 "VALUES (?, ?)", new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                User user = userWithRole.get(i);
                 ps.setInt(1, user.getId());
-                ps.setString(2, user.getRoles().iterator().next().name());
+                ps.setString(2, roles.get(i).name());
             }
 
             @Override
             public int getBatchSize() {
-                return userWithRole.size();
+                return roles.size();
             }
         });
     }
@@ -139,20 +131,21 @@ public class JdbcUserRepositoryImpl implements UserRepository {
     }
 
     private List<User> getAllWithRoles(List<User> users) {
-        Map<User, Set<Role>> usersWithRoles = new LinkedHashMap<>();
+        Map<Integer, User> userMap = new LinkedHashMap<>();
         for (User user : users) {
-            if (user.getRoles() != null && user.getRoles().size() != 0) {
-                usersWithRoles.computeIfAbsent(user, k -> EnumSet.noneOf(Role.class)).add(user.getRoles().iterator().next());
+            User userFromMap = userMap.get(user.getId());
+            if (userFromMap == null) {
+                userMap.put(user.getId(), user);
             } else {
-                usersWithRoles.put(user, EnumSet.noneOf(Role.class));
+                if (userFromMap.getRoles() == null) {
+                    userFromMap.setRoles(EnumSet.noneOf(Role.class));
+                }
+                Set<Role> roles = userFromMap.getRoles();
+                roles.add(user.getRoles().iterator().next());
+                userFromMap.setRoles(roles);
+                userMap.put(userFromMap.getId(), userFromMap);
             }
         }
-        List<User> results = new ArrayList<>();
-        for (Map.Entry<User, Set<Role>> entry : usersWithRoles.entrySet()) {
-            User user = entry.getKey();
-            user.setRoles(entry.getValue());
-            results.add(user);
-        }
-        return results;
+        return new ArrayList<>(userMap.values());
     }
 }
