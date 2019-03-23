@@ -22,33 +22,33 @@ public class AbstractMealController {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractMealController.class);
 
-    protected List<MealTo> getAll() {
+    public List<MealTo> getAll() {
         int userId = SecurityUtil.authUserId();
         log.info("getAll for user {}", userId);
         return MealsUtil.getWithExcess(service.getAll(userId), SecurityUtil.authUserCaloriesPerDay());
     }
 
-    protected void delete(int id) {
+    public void delete(int id) {
         int userId = SecurityUtil.authUserId();
         log.info("delete meal {} for user {}", id, userId);
         service.delete(id, userId);
     }
 
-    protected Meal create(Meal meal) {
+    public Meal create(Meal meal) {
         int userId = SecurityUtil.authUserId();
         checkNew(meal);
         log.info("create {} for user {}", meal, userId);
         return service.create(meal, userId);
     }
 
-    protected void update(Meal meal, int id) {
+    public void update(Meal meal, int id) {
         int userId = SecurityUtil.authUserId();
         assureIdConsistent(meal, id);
         log.info("update {} for user {}", meal, userId);
         service.update(meal, userId);
     }
 
-    protected List<MealTo> getBetween(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+    public List<MealTo> getBetween(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
         int userId = SecurityUtil.authUserId();
         log.info("getBetween dates({} - {}) time({} - {}) for user {}", startDate, endDate, startTime, endTime, userId);
         List<Meal> mealsDateFiltered = service.getBetweenDates(startDate, endDate, userId);

@@ -133,18 +133,13 @@ public class JdbcUserRepositoryImpl implements UserRepository {
     private List<User> getAllWithRoles(List<User> users) {
         Map<Integer, User> userMap = new LinkedHashMap<>();
         for (User user : users) {
-            User userFromMap = userMap.get(user.getId());
-            if (userFromMap == null) {
-                userMap.put(user.getId(), user);
-            } else {
-                if (userFromMap.getRoles() == null) {
-                    userFromMap.setRoles(EnumSet.noneOf(Role.class));
+            userMap.merge(user.getId(), user, (user1, user2) -> {
+                if (user1.getRoles() == null) {
+                    user1.setRoles(EnumSet.noneOf(Role.class));
                 }
-                Set<Role> roles = userFromMap.getRoles();
-                roles.add(user.getRoles().iterator().next());
-                userFromMap.setRoles(roles);
-                userMap.put(userFromMap.getId(), userFromMap);
-            }
+                user1.getRoles().add(user2.getRoles().iterator().next());
+                return user1;
+            });
         }
         return new ArrayList<>(userMap.values());
     }
