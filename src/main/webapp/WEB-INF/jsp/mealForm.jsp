@@ -8,15 +8,7 @@
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>
     <h2>
-        <c:set var="addMeal">
-            <spring:message code="meal.addMeal"/>
-        </c:set>
-
-        <c:set var="editMeal">
-            <spring:message code="meal.editMeal"/>
-        </c:set>
-
-        <c:out value="${meal.isNew() ? addMeal : editMeal}" />
+        <spring:message code="${meal.isNew() ? 'meal.addMeal' : 'meal.editMeal'}"/>
     </h2>
     <hr>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
