@@ -10,9 +10,9 @@ import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Month;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,7 +32,6 @@ class MealRestControllerTest extends AbstractControllerTest {
     protected MealService mealService;
 
     private static final String REST_URL = MealRestController.REST_URL + '/';
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @Test
     void testGetAll() throws Exception {
@@ -89,10 +88,10 @@ class MealRestControllerTest extends AbstractControllerTest {
     @Test
     void testGetBetween() throws Exception {
         mockMvc.perform(get(REST_URL
-                + "filter?startDate=" + LocalDateTime.of(2015, Month.MAY, 30, 0, 0).format(DATE_TIME_FORMATTER)
-                + "&startTime=" + LocalDateTime.of(2015, Month.MAY, 30, 0, 0).format(DATE_TIME_FORMATTER)
-                + "&endDate=" + LocalDateTime.of(2015, Month.MAY, 30, 0, 0).format(DATE_TIME_FORMATTER)
-                + "&endTime=" + LocalDateTime.of(2015, Month.MAY, 30, 23, 59).format(DATE_TIME_FORMATTER)))
+                + "filter?startDate=" + LocalDate.of(2015, Month.MAY, 30)
+                + "&startTime=" + LocalTime.of(0, 0)
+                + "&endDate=" + LocalDate.of(2015, Month.MAY, 30)
+                + "&endTime=" + LocalTime.of(23, 59)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(contentJson(MealsUtil.getWithExcess(List.of(MEAL3, MEAL2, MEAL1), USER.getCaloriesPerDay())));
