@@ -40,20 +40,16 @@ public class MealTestData {
         assertThat(actual).isEqualToIgnoringGivenFields(expected, "user");
     }
 
-//    public static void assertMatch(Iterable<Meal> actual, Meal... expected) {
-//        assertMatch(actual, List.of(expected));
-//    }
-//
-//    public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
-//        assertThat(actual).usingElementComparatorIgnoringFields("user").isEqualTo(expected);
-//    }
+    public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
+        assertThat(actual).usingElementComparatorIgnoringFields("user").isEqualTo(expected);
+    }
 
     public static void assertMatch(Iterable<Meal> actual, Meal... expected) {
         assertMatch(actual, List.of(expected));
     }
 
-    public static <T> void assertMatch(Iterable<T> actual, Iterable<T> expected) {
-        assertThat(actual).usingElementComparatorIgnoringFields("user").isEqualTo(expected);
+    public static void assertMatch(List<MealTo> actual, List<MealTo> expected) {
+        assertThat(actual).usingFieldByFieldElementComparator().isEqualTo(expected);
     }
 
     public static ResultMatcher contentJson(List<MealTo> expected) {

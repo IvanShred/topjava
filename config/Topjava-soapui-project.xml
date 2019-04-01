@@ -530,7 +530,7 @@
         <con:parameters/>
         <con:representation type="FAULT">
           <con:mediaType>text/html;charset=utf-8</con:mediaType>
-          <con:status>400</con:status>
+          <con:status>400 500</con:status>
           <con:params/>
           <con:element>html</con:element>
         </con:representation>
@@ -557,6 +557,7 @@
 }</con:request>
           <con:originalUri>http://localhost/topjava/rest/meals</con:originalUri>
           <con:credentials>
+            <con:selectedAuthProfile>No Authorization</con:selectedAuthProfile>
             <con:authType>No Authorization</con:authType>
           </con:credentials>
           <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
