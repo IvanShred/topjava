@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava.web;
 
 import org.assertj.core.matcher.AssertionMatcher;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.to.MealTo;
@@ -44,10 +45,9 @@ class RootControllerTest extends AbstractControllerTest {
                         new AssertionMatcher<List<MealTo>>() {
                             @Override
                             public void assertion(List<MealTo> actual) throws AssertionError {
-                                assertMatch(actual, MealsUtil.getWithExcess(MEALS, USER.getCaloriesPerDay()));
+                                Assertions.assertEquals(actual, MealsUtil.getWithExcess(MEALS, USER.getCaloriesPerDay()));
                             }
                         }
                 ));
-
     }
 }
