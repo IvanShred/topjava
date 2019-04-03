@@ -11,6 +11,7 @@ import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Month;
 import java.util.List;
 
@@ -88,10 +89,20 @@ class MealRestControllerTest extends AbstractControllerTest {
     void testGetBetween() throws Exception {
         mockMvc.perform(get(REST_URL
                 + "filter?startDate=" + LocalDate.of(2015, Month.MAY, 30)
-                + "&endDate=" + LocalDate.of(2015, Month.MAY, 30)))
+                + "&startTime=" + LocalTime.of(0, 0)
+                + "&endDate=" + LocalDate.of(2015, Month.MAY, 30)
+                + "&endTime=" + LocalTime.of(23, 59)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(contentJson(MealsUtil.getWithExcess(List.of(MEAL3, MEAL2, MEAL1), USER.getCaloriesPerDay())));
 
+    }
+
+    @Test
+    void testGetBetweenDates() throws Exception {
+        mockMvc.perform(get(REST_URL
+                + "filter?startDate=" + LocalDate.of(2015, Month.MAY, 30)
+                + "&endDate="
+                + "&endTime=" + LocalTime.of(23, 59)));
     }
 }
