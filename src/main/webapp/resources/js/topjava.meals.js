@@ -59,3 +59,12 @@ function updateFilteredTable(){
         context.datatableApi.clear().rows.add(data).draw();
     });
 }
+
+function clearFilter() {
+    $.ajax({
+        type: "GET",
+        url: context.ajaxUrl,
+    }).done(function (data) {
+        context.datatableApi.clear().rows.add(data).draw();
+    });
+}
