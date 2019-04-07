@@ -46,5 +46,16 @@ $('#startTime, #endTime').datetimepicker({
 
 $('#startDate, #endDate').datetimepicker({
     timepicker:false,
-    format:'d.m.Y',
+    format:'Y-m-d',
 });
+
+function updateFilteredTable(){
+    $.ajax({
+        type: "GET",
+        url: context.ajaxUrl + "filter",
+        data: $('#filter').serialize(),
+
+    }).done(function (data) {
+        context.datatableApi.clear().rows.add(data).draw();
+    });
+}
