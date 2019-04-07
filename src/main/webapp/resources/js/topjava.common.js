@@ -5,7 +5,7 @@ function makeEditable(ctx) {
     form = $('#detailsForm');
     $(".delete").click(function () {
         if (confirm('Are you sure?')) {
-            deleteRow($(this).attr("id"));
+            deleteRow($(this).parent().parent().attr("id"));
         }
     });
 
@@ -15,6 +15,19 @@ function makeEditable(ctx) {
 
     // solve problem with cache in IE: https://stackoverflow.com/a/4303862/548473
     $.ajaxSetup({cache: false});
+
+    $(".checkbox").click(function () {
+        $.ajax({
+            type: "POST",
+            url: context.ajaxUrl + $(this).parent().parent().attr("id"),
+            data: {"enabled": this.checked}
+        })
+        if (this.checked) {
+            $(this).parent().parent().css({'background': 'green'});
+        } else {
+            $(this).parent().parent().css({'background': 'rosybrown'});
+        }
+    });
 }
 
 function add() {
@@ -78,8 +91,7 @@ function failNoty(jqXHR) {
     }).show();
 }
 
-function updateDataTable()
-{
+function updateDataTable() {
     if (context.ajaxUrl === "ajax/profile/meals/") {
         updateFilteredTable()
     } else {
