@@ -1,6 +1,7 @@
 // $(document).ready(function () {
 $(function () {
     makeEditable({
+            fncUpdateTable: updateFilteredTable,
             ajaxUrl: "ajax/profile/meals/",
             datatableApi: $("#datatable").DataTable({
                 "paging": false,
@@ -27,7 +28,7 @@ $(function () {
                 "order": [
                     [
                         0,
-                        "asc"
+                        "desc"
                     ]
                 ]
             })
@@ -35,21 +36,7 @@ $(function () {
     );
 });
 
-$('#dateTime').datetimepicker({
-    format:'Y-m-d H:i'
-});
-
-$('#startTime, #endTime').datetimepicker({
-    datepicker:false,
-    format:'H:i',
-});
-
-$('#startDate, #endDate').datetimepicker({
-    timepicker:false,
-    format:'Y-m-d',
-});
-
-function updateFilteredTable(){
+function updateFilteredTable() {
     $.ajax({
         type: "GET",
         url: context.ajaxUrl + "filter",

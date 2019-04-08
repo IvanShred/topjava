@@ -42,6 +42,6 @@ public class AdminUIController extends AbstractUserController {
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void changeEnabled(@PathVariable("id") int id,
                               @RequestParam("enabled") boolean enabled) {
-        service.changeEnabled(id, enabled);
+        super.changeEnabled(id, enabled);
     }
 }

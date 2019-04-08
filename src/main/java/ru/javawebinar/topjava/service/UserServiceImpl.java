@@ -73,6 +73,6 @@ public class UserServiceImpl implements UserService {
     public void changeEnabled(int id, boolean enabled) {
         User user = get(id);
         user.setEnabled(enabled);
-        update(user);
+        repository.save(user);
     }
 }

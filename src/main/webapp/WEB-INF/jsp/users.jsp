@@ -31,15 +31,7 @@
             </thead>
             <c:forEach items="${users}" var="user">
                 <jsp:useBean id="user" type="ru.javawebinar.topjava.model.User"/>
-                <tr <c:choose>
-                    <c:when test="${user.enabled}">
-                        style="background: green"
-                    </c:when>
-                    <c:otherwise>
-                        style="background: rosybrown"
-                    </c:otherwise>
-                </c:choose>
-                        id="${user.id}">
+                <tr data-userEnabled="${user.enabled}" id="${user.id}">
                     <td><c:out value="${user.name}"/></td>
                     <td><a href="mailto:${user.email}">${user.email}</a></td>
                     <td>${user.roles}</td>

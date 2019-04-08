@@ -12,7 +12,7 @@ import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 
 public abstract class AbstractUserController {
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     protected UserService service;
@@ -47,5 +47,10 @@ public abstract class AbstractUserController {
     public User getByMail(String email) {
         log.info("getByEmail {}", email);
         return service.getByEmail(email);
+    }
+
+    public void changeEnabled(int id, boolean enabled) {
+        log.info("change enabled on {} with id={}", enabled, id);
+        service.changeEnabled(id, enabled);
     }
 }

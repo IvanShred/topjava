@@ -15,19 +15,6 @@ function makeEditable(ctx) {
 
     // solve problem with cache in IE: https://stackoverflow.com/a/4303862/548473
     $.ajaxSetup({cache: false});
-
-    $(".checkbox").click(function () {
-        $.ajax({
-            type: "POST",
-            url: context.ajaxUrl + $(this).parent().parent().attr("id"),
-            data: {"enabled": this.checked}
-        })
-        if (this.checked) {
-            $(this).parent().parent().css({'background': 'green'});
-        } else {
-            $(this).parent().parent().css({'background': 'rosybrown'});
-        }
-    });
 }
 
 function add() {
@@ -40,7 +27,7 @@ function deleteRow(id) {
         url: context.ajaxUrl + id,
         type: "DELETE"
     }).done(function () {
-        updateDataTable();
+        context.fncUpdateTable();
         successNoty("Deleted");
     });
 }
@@ -58,7 +45,7 @@ function save() {
         data: form.serialize()
     }).done(function () {
         $("#editRow").modal("hide");
-        updateDataTable();
+        context.fncUpdateTable();
         successNoty("Saved");
     });
 }
@@ -89,12 +76,4 @@ function failNoty(jqXHR) {
         type: "error",
         layout: "bottomRight"
     }).show();
-}
-
-function updateDataTable() {
-    if (context.ajaxUrl === "ajax/profile/meals/") {
-        updateFilteredTable()
-    } else {
-        updateTable();
-    }
 }
