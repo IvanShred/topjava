@@ -34,7 +34,7 @@ function deleteRow(id) {
 
 function updateTable() {
     $.get(context.ajaxUrl, function (data) {
-        context.datatableApi.clear().rows.add(data).draw();
+        refreshTable(data);
     });
 }
 
@@ -76,4 +76,8 @@ function failNoty(jqXHR) {
         type: "error",
         layout: "bottomRight"
     }).show();
+}
+
+function refreshTable(data) {
+    context.datatableApi.clear().rows.add(data).draw();
 }

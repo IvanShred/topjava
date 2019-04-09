@@ -47,11 +47,9 @@ $(function () {
             url: context.ajaxUrl + $(this).parent().parent().attr("id"),
             data: {"enabled": checkbox.checked}
         }).done(function () {
-            if (checkbox.checked) {
-                $(checkbox).parent().parent().attr("data-userEnabled", "true")/*css({'background': 'green'})*/;
-            } else {
-                $(checkbox).parent().parent().attr("data-userEnabled", "false");
-            }
+            $(checkbox).parent().parent().attr("data-userEnabled", checkbox.checked);
+        }).fail(function () {
+            $(checkbox).prop("checked", !checkbox.checked);
         });
     });
 });

@@ -43,7 +43,7 @@ function updateFilteredTable() {
         data: $('#filter').serialize(),
 
     }).done(function (data) {
-        context.datatableApi.clear().rows.add(data).draw();
+        refreshTable(data);
     });
 }
 
@@ -52,6 +52,6 @@ function clearFilter() {
         type: "GET",
         url: context.ajaxUrl,
     }).done(function (data) {
-        context.datatableApi.clear().rows.add(data).draw();
+        refreshTable(data);
     });
 }
