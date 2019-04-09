@@ -48,8 +48,10 @@ $(function () {
             data: {"enabled": checkbox.checked}
         }).done(function () {
             $(checkbox).parent().parent().attr("data-userEnabled", checkbox.checked);
-        }).fail(function () {
+            checkbox.checked ? successNoty("Запись активирована") : successNoty("Запись деактивирована");
+        }).fail(function (jqXHR) {
             $(checkbox).prop("checked", !checkbox.checked);
+            failedNote(jqXHR);
         });
     });
 });
