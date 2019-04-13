@@ -41,4 +41,9 @@ public class DateTimeUtil {
     public static LocalTime parseLocalTime(@Nullable String str) {
         return StringUtils.isEmpty(str) ? null : LocalTime.parse(str);
     }
+
+    public static LocalDateTime parseLocalDateTime(@Nullable String str) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return StringUtils.isEmpty(str) ? null : LocalDateTime.parse(str, formatter);
+    }
 }
