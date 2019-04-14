@@ -75,6 +75,9 @@ $('#startDate, #endDate').datetimepicker({
 $.ajaxSetup({
     converters: {
         "text json": function (stringData) {
+            if (stringData.includes("<br>")){
+                return stringData;
+            }
             const json = JSON.parse(stringData);
             $(json).each(function () {
                 this.dateTime = this.dateTime.replace('T', ' ').substr(0, 16);
