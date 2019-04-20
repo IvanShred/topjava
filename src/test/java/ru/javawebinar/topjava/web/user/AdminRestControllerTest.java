@@ -6,7 +6,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
-import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import java.util.Collections;
 
@@ -88,10 +87,22 @@ class AdminRestControllerTest extends AbstractControllerTest {
         mockMvc.perform(put(REST_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(ADMIN))
-                .content(JsonUtil.writeValue(updated)))
+                .content(jsonWithPassword(updated, "password")))
                 .andExpect(status().isNoContent());
 
         assertMatch(userService.get(USER_ID), updated);
+    }
+
+    @Test
+    void testUpdateNotValid() throws Exception {
+        User updated = new User(USER);
+        updated.setName("");
+        updated.setRoles(Collections.singletonList(Role.ROLE_ADMIN));
+        mockMvc.perform(put(REST_URL + USER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(ADMIN))
+                .content(jsonWithPassword(updated, "password")))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -118,4 +129,17 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(contentJson(ADMIN, USER));
     }
+
+//    @Test
+//    void testCreateUserEmailExist() throws Exception {
+//        User user = new User(null, "New", "user@yandex.ru", "newPass", 2300, Role.ROLE_USER, Role.ROLE_ADMIN);
+//        MvcResult result = mockMvc.perform(post(REST_URL)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .with(userHttpBasic(ADMIN))
+//                .content(jsonWithPassword(user, "newPass")))
+//                .andExpect(status().isConflict())
+//                .andReturn();
+//        String content = result.getResponse().getContentAsString();
+//        assertEquals(content.contains("User with this email already exists"), true);
+//    }
 }

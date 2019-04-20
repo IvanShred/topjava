@@ -20,8 +20,11 @@ public class GlobalControllerExceptionHandler {
         ModelAndView mav = new ModelAndView("exception/exception");
         Throwable rootCause = ValidationUtil.getRootCause(e);
         mav.addObject("exception", rootCause);
-        mav.addObject("message", ValidationUtil.getMessage(rootCause));
-
+        if (ValidationUtil.getMessage(ValidationUtil.getRootCause(e)).contains("users_unique_email_idx")) {
+            mav.addObject("message", "User with this email already exists");
+        } else {
+            mav.addObject("message", ValidationUtil.getMessage(rootCause));
+        }
         // Interceptor is not invoked, put userTo
         AuthorizedUser authorizedUser = SecurityUtil.safeGet();
         if (authorizedUser != null) {
