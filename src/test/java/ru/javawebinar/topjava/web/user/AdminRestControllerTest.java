@@ -2,13 +2,17 @@ package ru.javawebinar.topjava.web.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 
 import java.util.Collections;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -130,16 +134,16 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .andExpect(contentJson(ADMIN, USER));
     }
 
-//    @Test
-//    void testCreateUserEmailExist() throws Exception {
-//        User user = new User(null, "New", "user@yandex.ru", "newPass", 2300, Role.ROLE_USER, Role.ROLE_ADMIN);
-//        MvcResult result = mockMvc.perform(post(REST_URL)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .with(userHttpBasic(ADMIN))
-//                .content(jsonWithPassword(user, "newPass")))
-//                .andExpect(status().isConflict())
-//                .andReturn();
-//        String content = result.getResponse().getContentAsString();
-//        assertEquals(content.contains("User with this email already exists"), true);
-//    }
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void testCreateEmailExist() throws Exception {
+        User user = new User(null, "New", "user@yandex.ru", "newPass", 2300, Role.ROLE_USER, Role.ROLE_ADMIN);
+        MvcResult result = mockMvc.perform(post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(ADMIN))
+                .content(jsonWithPassword(user, "newPass")))
+                .andExpect(status().isConflict())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("User with this email already exists"));
+    }
 }
