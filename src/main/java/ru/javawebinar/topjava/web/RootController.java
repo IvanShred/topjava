@@ -21,7 +21,7 @@ public class RootController extends AbstractUserController {
         return "redirect:meals";
     }
 
-//    @Secured("ROLE_ADMIN")
+    //    @Secured("ROLE_ADMIN")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/users")
     public String users() {
@@ -47,12 +47,11 @@ public class RootController extends AbstractUserController {
     public String updateProfile(@Valid UserTo userTo, BindingResult result, SessionStatus status) {
         if (result.hasErrors()) {
             return "profile";
-        } else {
-            super.update(userTo, SecurityUtil.authUserId());
-            SecurityUtil.get().update(userTo);
-            status.setComplete();
-            return "redirect:meals";
         }
+        super.update(userTo, SecurityUtil.authUserId());
+        SecurityUtil.get().update(userTo);
+        status.setComplete();
+        return "redirect:meals";
     }
 
     @GetMapping("/register")
@@ -67,10 +66,9 @@ public class RootController extends AbstractUserController {
         if (result.hasErrors()) {
             model.addAttribute("register", true);
             return "profile";
-        } else {
-            super.create(UserUtil.createNewFromTo(userTo));
-            status.setComplete();
-            return "redirect:login?message=app.registered&username=" + userTo.getEmail();
         }
+        super.create(UserUtil.createNewFromTo(userTo));
+        status.setComplete();
+        return "redirect:login?message=app.registered&username=" + userTo.getEmail();
     }
 }
